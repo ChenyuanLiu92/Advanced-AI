@@ -66,6 +66,7 @@ conda_package_streaming @ file:///private/var/folders/sy/f16zz6x50xz3113nwtb9bvq
 constantly==15.1.0
 contourpy @ file:///Users/ec2-user/ci_py311/contourpy_1678322361099/work
 cookiecutter @ file:///opt/conda/conda-bld/cookiecutter_1649151442564/work
+coverage==7.5.1
 cryptography @ file:///private/var/folders/sy/f16zz6x50xz3113nwtb9bvq00000gp/T/abs_19sc_35nzq/croot/cryptography_1694211574676/work
 cssselect==1.1.0
 cycler @ file:///tmp/build/80754af9/cycler_1637851556182/work
@@ -231,6 +232,7 @@ pyarrow==11.0.0
 pyasn1 @ file:///Users/ktietz/demo/mc3/conda-bld/pyasn1_1629708007385/work
 pyasn1-modules==0.2.8
 pycodestyle @ file:///Users/ec2-user/ci_py311/pycodestyle_1678324331308/work
+pycore==17.4.17
 pycosat @ file:///Users/ec2-user/ci_py311/pycosat_1678378899646/work
 pycparser @ file:///tmp/build/80754af9/pycparser_1636541352034/work
 pyct @ file:///Users/ec2-user/ci_py311/pyct_1678378955854/work
@@ -256,6 +258,7 @@ PyQt5-sip==12.11.0
 pyrsistent @ file:///Users/ec2-user/ci_py311/pyrsistent_1678316053523/work
 PySocks @ file:///Users/ec2-user/ci_py311/pysocks_1678315868424/work
 pytest @ file:///private/var/folders/sy/f16zz6x50xz3113nwtb9bvq00000gp/T/abs_7089yk6bfu/croot/pytest_1690474697638/work
+pytest-cov==5.0.0
 python-dateutil @ file:///tmp/build/80754af9/python-dateutil_1626374649649/work
 python-dotenv @ file:///Users/ec2-user/ci_py311/python-dotenv_1678319919985/work
 python-json-logger @ file:///private/var/folders/sy/f16zz6x50xz3113nwtb9bvq00000gp/T/abs_49p5x2bjzn/croot/python-json-logger_1683823814668/work
