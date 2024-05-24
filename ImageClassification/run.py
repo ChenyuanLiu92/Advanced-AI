@@ -4,6 +4,7 @@ from einops.layers.torch import Rearrange
 from tqdm import tqdm
 import torchvision
 import os
+import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
     # 数据载入与预处理
@@ -21,18 +22,22 @@ if __name__ == '__main__':
         torchvision.transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                 std=[0.229, 0.224, 0.225])])
 
-    train_data = torchvision.datasets.CIFAR10(root='../ImageClassification/data/cifar10', train=True, download=True, transform=trans_train)
+    train_data = torchvision.datasets.CIFAR10(root='./data/cifar10', train=True, download=True, transform=trans_train)
     train_loader = torch.utils.data.DataLoader(train_data, batch_size=256, shuffle=True, num_workers=2, pin_memory=True)
 
-    test_data = torchvision.datasets.CIFAR10(root='../ImageClassification/data/cifar10', train=False, download=False, transform=trans_valid)
+    test_data = torchvision.datasets.CIFAR10(root='./data/cifar10', train=False, download=False, transform=trans_valid)
     test_loader = torch.utils.data.DataLoader(test_data, batch_size=256, shuffle=False, num_workers=2, pin_memory=True)
 
     # Cifar-10中的各种类别
     classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'ship', 'truck')
 
     dataiter = iter(train_loader)
+
     images, labels = next(dataiter)
+
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    LR = 0.001
 
     # 选择模型
     print("press 1 for ViT model")
@@ -62,7 +67,7 @@ if __name__ == '__main__':
         print('Model has been build successfully!\n')
         print('Model structure: \n')
         print(model)
-        optimizer = torch.optim.Adagrad(model.parameters(), lr = 0.001)
+        optimizer = torch.optim.Adagrad(model.parameters(), lr = LR)
         criterion = torch.nn.CrossEntropyLoss()
 
     elif num == '2':
@@ -73,7 +78,7 @@ if __name__ == '__main__':
         print('Model structure: \n')
         print(model)
 
-        optimizer = torch.optim.Adam(model.parameters(), lr = 0.003)
+        optimizer = torch.optim.Adam(model.parameters(), lr = LR)
         criterion = torch.nn.CrossEntropyLoss()
 
     elif num == '3':
@@ -83,7 +88,7 @@ if __name__ == '__main__':
         print('Model has been build successfully!\n')
         print('Model structure: \n')
         print(model)
-        optimizer = torch.optim.Adam(model.parameters(), lr = 0.001)
+        optimizer = torch.optim.Adam(model.parameters(), lr = LR)
         criterion = torch.nn.CrossEntropyLoss()
 
     elif num == '4':
@@ -93,19 +98,14 @@ if __name__ == '__main__':
         print('Model has been build successfully!\n')
         print('Model structure: \n')
         print(model)
-        optimizer = torch.optim.Adam(model.parameters(), lr = 0.001)
+        optimizer = torch.optim.Adam(model.parameters(), lr = LR)
         criterion = torch.nn.CrossEntropyLoss()
 
-
-
-
-    def train(model, train_loader, optimizer, criterion, device, epoch):
-        print('\nEpoch: %d\n' % epoch)
+    def train(model, train_loader, optimizer, criterion, device,):
         model.train()  # 将模型设置为训练模式
         running_loss = 0.0  # 初始化损失值为0
         correct = 0  # 初始化预测正确的样本数为0
         total = 0  # 初始化总样本数为0
-
         loop = tqdm(train_loader, total=len(train_loader))  # 使用 tqdm 创建进度条
         loop.set_description(f'Training Starting ...')
 
@@ -134,43 +134,6 @@ if __name__ == '__main__':
         train_acc = correct / total  # 计算平均准确率
 
         return train_loss, train_acc
-
-    # 训练过程
-    print('Enter Epoch ===>', end=" ")
-    EPOCH = int(input())
-
-    print('===> Start Training ......')
-    for step in range(EPOCH):
-        train_loss, train_acc = train(model, train_loader, optimizer, criterion, device, epoch=step+1)
-        print(f"Training Loss    : {train_loss}")
-        print(f"Training Accuracy: {train_acc}")
-    print('===> Training Finished!')
-    # 定义固定目录
-    save_dir = './saved_models'
-    # 如果目录不存在，创建目录
-    os.makedirs(save_dir, exist_ok=True)
-    # 定义保存路径和文件名
-    if num == '1':
-        model_save_path = os.path.join(save_dir, 'vit_model.pth')
-        # 保存模型
-        torch.save(model.state_dict(), model_save_path)
-        print(f"ViT model saved to {model_save_path}")
-    elif num == '2':
-        model_save_path = os.path.join(save_dir, 'cnn_model.pth')
-        # 保存模型
-        torch.save(model.state_dict(), model_save_path)
-        print(f"CNN model saved to {model_save_path}")
-    elif num == '3':
-        model_save_path = os.path.join(save_dir, 'vgg_model.pth')
-        # 保存模型
-        torch.save(model.state_dict(), model_save_path)
-        print(f"VGG model saved to {model_save_path}")
-    elif num == '4':
-        model_save_path = os.path.join(save_dir, 'resnet18_model.pth')
-        # 保存模型
-        torch.save(model.state_dict(), model_save_path)
-        print(f"ResNet18 model saved to {model_save_path}")
-
     def test(model, test_loader, criterion, device):
         model.eval()  # 将模型设置为评估模式
         running_loss = 0.0  # 初始化损失值为0
@@ -203,16 +166,67 @@ if __name__ == '__main__':
 
         return test_loss, test_acc
 
-    for epoch in range(EPOCH):
-        train_loss, train_acc = train(model, train_loader, optimizer, criterion, device, epoch)
-        print(f"Epoch [{epoch+1}/{EPOCH}] - Training Loss: {train_loss:.4f}, Training Accuracy: {train_acc:.4f}")
+    def run(EPOCHS, model, train_loader, test_loader, optimizer, criterion, device):
+        num_epochs = EPOCHS  # 设置训练 epoch 数
+        test_loss_v = []
+        test_acc_v = []
 
+        for epoch in range(1, num_epochs + 1):
+            print(f'Epoch: {epoch}')
+            print('===>Train Start')
+            train_loss, train_acc = train(model, train_loader, optimizer, criterion, device)
+            print('===>Test Start')
         test_loss, test_acc = test(model, test_loader, criterion, device)
-        print(f"Epoch [{epoch+1}/{EPOCH}] - Test Loss: {test_loss:.4f}, Test Accuracy: {test_acc:.4f}")
+        test_loss_v.append(test_loss)
+        test_acc_v.append(test_acc)
 
+        # 可视化训练损失和准确率
+        plt.figure(figsize=(12, 5))
 
+        plt.subplot(1, 2, 1)
+        plt.plot(range(1, num_epochs + 1), test_loss_v, label='Test Loss')
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.title('Testing Loss')
+        plt.legend()
 
+        plt.subplot(1, 2, 2)
+        plt.plot(range(1, num_epochs + 1), test_acc_v, label='Test Accuracy')
+        plt.xlabel('Epoch')
+        plt.ylabel('Accuracy')
+        plt.title('Testing Accuracy')
+        plt.legend()
 
+        plt.tight_layout()
+        plt.show()
+        save_dir = './saved_models'
+        # 如果目录不存在，创建目录
+        os.makedirs(save_dir, exist_ok=True)
+        # 定义保存路径和文件名
+        if num == '1':
+            model_save_path = os.path.join(save_dir, 'vit_model.pth')
+            # 保存模型
+            torch.save(model.state_dict(), model_save_path)
+            print(f"ViT model saved to {model_save_path}")
+            plt.savefig('vit_model.png')
+        elif num == '2':
+            model_save_path = os.path.join(save_dir, 'cnn_model.pth')
+            # 保存模型
+            torch.save(model.state_dict(), model_save_path)
+            print(f"CNN model saved to {model_save_path}")
+            plt.savefig('CNN.png')
+        elif num == '3':
+            model_save_path = os.path.join(save_dir, 'vgg_model.pth')
+            # 保存模型
+            torch.save(model.state_dict(), model_save_path)
+            print(f"VGG model saved to {model_save_path}")
+            plt.savefig('vgg.png')
+        elif num == '4':
+            model_save_path = os.path.join(save_dir, 'resnet18_model.pth')
+        # 保存模型
+            torch.save(model.state_dict(), model_save_path)
+            print(f"ResNet18 model saved to {model_save_path}")
+            plt.savefig('ResNet18.png')
 
-
-
+    EPOCH = 20
+    run(20, model,train_loader, test_loader, optimizer, criterion, device)
