@@ -176,9 +176,9 @@ if __name__ == '__main__':
             print('===>Train Start')
             train_loss, train_acc = train(model, train_loader, optimizer, criterion, device)
             print('===>Test Start')
-        test_loss, test_acc = test(model, test_loader, criterion, device)
-        test_loss_v.append(test_loss)
-        test_acc_v.append(test_acc)
+            test_loss, test_acc = test(model, test_loader, criterion, device)
+            test_loss_v.append(test_loss)
+            test_acc_v.append(test_acc)
 
         # 可视化训练损失和准确率
         plt.figure(figsize=(12, 5))
